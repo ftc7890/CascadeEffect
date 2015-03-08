@@ -3,6 +3,8 @@ All the code and design files FTC 7890 Space Lions created for the 2014-15 FTC s
 
 # Helper functions library
 Here is an overview of the methods and tasks contained in our helperFunctions.h library.
+
+
 Encoders
  - void resetEncoder (tMotor anyMotor)
  - void moveEncoderSteps(tMotor anyMotor, int encoderSteps, int power)
