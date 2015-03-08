@@ -22,52 +22,69 @@
 //** Tournament Iteration: NJ State Championship (NJIT)
 //** Authors: Nick Keirstead, Jacob Hoglund, Joshua Gruenstein
 
+//Goal of Program:
+	//- Determine position of center structure with sonar
+	//- Knock out kickstand (30 pts)
+	//--> ideal total = 30 pts
+
+//Sensing Used:
+		//- Custom Sonar Rangefinder connected to HiTechnic Superpro Protoboard
+		//- HiTechnic Gyroscope
+		//- Motor Encoders
+
 #include "JoystickDriver.c"  //Include file to "handle" the Bluetooth messages.
 #include "helperFunctions.h"
 
-int threshold = 10;
-bool forwards = true;
-bool spinning = false;
 
-void initializeRobot() {
-	grabbersUp();
+
+void initializeRobot()
+{
+	servo[servoTurret] = 128; //point custom rangefinder forward
+	grabbersMidway();
 	bridgeClosed();
-	return;
 }
 
-task main() {
-	initializeRobot();
-	//waitForStart();   // wait for start of teleop phase
-	while (true) {
-		getJoystickSettings(joystick);
-		if (forwards) {
-			if (abs(joystick.joy1_y1) > threshold) motor[leftA] = motor[leftB] = joystick.joy1_y1/2.5;
-			else motor[leftA] = motor[leftB] = 0;
-			if (abs(joystick.joy1_y2) > threshold) motor[rightA] = motor[rightB] = joystick.joy1_y2/2.5;
-			else motor[rightA] = motor[rightB] = 0;
-		}
-		else {
-			if (abs(joystick.joy1_y2) > threshold) motor[leftA] = motor[leftB] = -joystick.joy1_y2/6;
-			else motor[leftA] = motor[leftB] = 0;
-			if (abs(joystick.joy1_y1) > threshold) motor[rightA] = motor[rightB] = -joystick.joy1_y1/6;
-			else motor[rightA] = motor[rightB] = 0;
-		}
-
-		//rolling goal grabber servos
-		if (joy1Btn(4)) grabbersUp();
-		if (joy1Btn(2)) grabbersDown();
-
-		if (abs(joystick.joy2_y1) > threshold) motor[lifter] = joystick.joy2_y1;
-		else motor[lifter] = 0;
-
-		if (joy2Btn(4)) spinning = true;
-		if (joy2Btn(2)) spinning = false;
-
-		if (joy2Btn(6)) {
-			bridgeOpen();
-		}
-		else if (joy2Btn(5)) {
-			bridgeClosed();
-		}
+void knockStand (int position) {
+	switch (position) {
+		case 1:
+			driveUntilCloserThan(15,90);
+			wait1Msec(100);
+			pivot(1,50,90);
+			break;
+		case 2:
+			servo[servoTurret] = 75;
+			wait1Msec(600);
+			driveUntilCloserThan(15,116);
+			wait1Msec(100);
+			driveDistance(-15,1);
+			wait1Msec(100);
+			pivot(1,18,31);
+			wait1Msec(100);
+			driveDistance(50,15);
+			wait1Msec(100);
+			pivot(1,15,15);
+			wait1Msec(100);
+			break;
+		case 3:
+			driveUntilCloserThan(15,200);
+			wait1Msec(100);
+			pivot(1,15,35);
+			wait1Msec(100);
+			driveDistance(15,20);
+			wait1Msec(100);
+			pivot(0,15,28);
+			wait1Msec(100);
+			driveDistance(100,25);
 	}
+}
+
+
+task main()
+{
+		initializeRobot();
+		waitForStart();
+		int position = findOrientation();
+		//nxtDisplayTextLine(2, "Position: %d", position);
+		//wait1Msec(1000);
+		knockStand(position);
 }
